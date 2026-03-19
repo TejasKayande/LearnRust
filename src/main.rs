@@ -1,85 +1,80 @@
 
-fn main() {
-
-    println!("Functions, Expressions, and Statements");
-
-    // NOTE(Tejas): we can evaluate an expression in a block and assign the result to a variable.
-    // NOTE(Tejas): underscore is used to indeicate that we know variable is unused.
-    let _y = {
-        let x = 3;
-
-        // NOTE(Tejas): This is without a semicolon, so this will be returned,
-        // if we add a semicolon, it becomes a statement.
-        x + 1
-    };
-
-    println!("{}", another_function(32));
-    println!("------------------------------");
+fn main() -> () {
 
 
-    // Coditionals
-    println!("Conditionals");
-    let mut number = String::new();
+    // Ownership is a set of rules that govern how a Rust program manages
+    // memory. All programs have to manage the way they use a computer’s memory
+    // while running. Rust uses a third approach: Memory is managed through a
+    // system of ownership with a set of rules that the compiler checks. If any
+    // of the rules are violated, the program won’t compile. None of the
+    // features of ownership will slow down your program while it’s running.
 
-    println!("Enter a number: ");
-    std::io::stdin()
-    .read_line(&mut number)
-    .expect("Failed to read line");
+    // Ownership rules:
+    // 1. Each value in Rust has an owner.
+    // 2. There can only be one owner at a time.
+    // 3. When the owner goes out of scope, the value will be dropped.
 
-    let number: usize = number.trim().parse().expect("Please type a number!");
+    {
+        // allocation memory on the heap at runtime
+        // here s owns the string "hello".
+        let mut s = String::from("hello");
 
-    // NOTE(Tejas): Rust does not allow one line if statements like in C
-    if number % 4 == 0 {
-        println!("number is divisible by 4");
-    } else if number % 3 == 0 {
-        println!("number is divisible by 3");
-    } else if number % 2 == 0 {
-        println!("number is divisible by 2");
-    } else {
-        println!("number is not divisible by 4, 3, or 2");
+        // ownership of the string is moved to s2, s is no longer valid.
+        // This is a Shallow Copy
+        // let s2 = s;
+
+        // ownership of the string is cloned to s2, s is still valid.
+        // This is a Deep Copy
+        let mut s2 = s.clone(); 
+        s2.push_str("world");
+        
+        // because s was assigned a new value, Rust called drop() on the old s
+        // and a new string was allocated on the heap for the new value.
+        // This happens in order: first it creates a new string on the heap,
+        // then it checks that the old s is no loger pointed by anything and
+        // therfore is out of scope, so Rust calls drop().
+        s = String::from("test");
+
+        println!("s: {}, s2: {}", s, s2);
+
+    } // s goes out of scope and memory is freed. Standard RAII pattern.
+
+    {
+        let s = String::from("hello");
+        // takes_ownership(s);
+        let s = take_and_give_ownership(s);
+
+        println!("s: {}", s);
     }
 
-    print!("Conditionals for expressions: ");
-    let val = if number > 10 { "greater than 10" } else { "less than or equal to 10" };
-    println!("Your number {} is {}", number, val);
+    {
+        let s = String::from("hello");
+        let (s, len) = calculate_length(s);
 
-    // NOTE(Tejas): Rust does not automatically convert non-boolean types to
-    // boolean in conditionals, so we cannot do something like this:
-    let _number = 3;
-    // NOTE(Tejas): we cant do this...
-    // if number {
-    //     println!("This will not compile because number is not a boolean");
-    // }
-    println!("------------------------------");
-
-
-    println!("Loops: ");
-    let x = loop {
-        println!("Looping...");
-        break 42; // you can return a value from a loop using break
-    };
-
-    println!("Labeled loops: ");
-    'outer: loop {
-        println!("Outer loop");
-        'inner: loop {
-            println!("Inner loop");
-            break 'outer; // this will break the outer loop
-        }
+        println!("The length of '{}' is {}.", s, len);
     }
 
-    println!("Reverse Range: ");
-    for number in (1..4).rev() {
-        println!("{}, ", number);
-    }
+    // All of the ownership rules only apply to values that are stored on the heap.
+    // Values that are stored on the stack have a known size at compile time and
+    // are stored directly on the stack. They can be copied by simply copying
+    // their bits, which is very fast.
+
 }
 
-fn another_function(x: usize) -> usize {
-    println!("Another function. {}", x);
+fn _takes_ownership(some_string: String) {
 
-    // NOTE(Tejas): The last expression is the return value of the function, and
-    // it does not need a semicolon.  if we add a semicolon, it becomes a
-    // statement and the function will return the unit type `()`, which is not
-    // what we want.
-    return x + 1;
+    println!("This string will now go out of scope: {}", some_string);
+} // some_string goes out of scope and memory is freed.
+
+fn take_and_give_ownership(some_string: String) -> String {
+
+    return some_string; // some_string is moved out to the caller.
+}
+
+fn calculate_length(s: String) -> (String, usize) {
+
+    let length = s.len();
+
+    // s is moved out to the caller before it goes out of scope.
+    return (s, length); // returning multiple values usign tuples.
 }
