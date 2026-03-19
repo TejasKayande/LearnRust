@@ -1,44 +1,87 @@
-use rand::Rng;
 
 fn main() {
 
-    let random_number = rand::thread_rng().gen_range(1..=100);
+    // Variables 
+    let mut x: u32 =  5; //  mutable 32 bit integer variable
+    let y: u64 = 10; // immutable 64 bit integer variable
 
-    loop {
-        println!("Enter a number: ");
+    // NOTE(Tejas): difference between immutable and constant variables is that
+    // immutable variables are assigned a value at runtime (maybe through a
+    // function call) and can be changed, while constant variables are fixed at
+    // compile time and cannot be changed.
 
-        let mut guess= String::new();
+    // const values must be know at compile time
+    const PI: f64 = 3.14159; // constant variable
 
-        std::io::stdin()
-        .read_line(&mut guess)
-        .expect("Failed to read line");
+    // Data types
+    /*
+    Length                   Signed  Unsigned
+    ------------------------------------------
+    8-bit                    i8      u8
+    16-bit                   i16     u16
+    32-bit                   i32     u32
+    64-bit                   i64     u64
+    128-bit                  i128    u128
+    Architecture-dependent   isize   usize
+    */
 
-        // let guess: u32 = guess.trim().parse().expect("Your Guess was not a number");
 
-        let guess: u32 = match guess.trim().parse() {
-            Ok(num) => num,
-            Err(_) => {
-                println!("Please enter a valid number!");
-                continue;
-            }
-        };
+    // NOTE(Tejas): Integer overflow will cause a panic in debug mode and if
+    // compiled with --release flag, it will wrap around using two's complement
+    // wrapping.
 
-        println!("You Guessed: {}", guess);
+    println!("Integer Overflow and Wrapping: ");
 
-        match guess.cmp(&random_number) {
+    // NOTE(Tejas): compile with --release flag.
+    let mut x: u8 = 255; // maximum value for u8
+    println!("Before overflow: {}", x);
 
-            std::cmp::Ordering::Less => {
-                println!("Too small!");
-            },
+    // NOTE(Tejas): will cause overflow and panic in debug mode, but will wrap
+    // around to 0 in release mode. Uncomment to see the effect in debug mode.
+    // x = x + 1;
 
-            std::cmp::Ordering::Greater => {
-                println!("Too big!");
-            },
+    println!("After overflow: {}", x); // will wrap around to 0
 
-            std::cmp::Ordering::Equal => {
-                println!("You win! The Number was: {}", random_number);
-                break;
-            },
-        }
+
+    // NOTE(Tejas): We can additionally use the wrapping_add method to explicitly handle overflow.
+    // NOTE(Tejas): doesnt need --release flag, will always wrap around.
+    let mut x: u8 = 255;
+    println!("Before wrapping_add: {}", x);
+    x = x.wrapping_add(1); // will handle overflow by wrapping around
+    println!("After wrapping_add: {}", x); // will wrap around to 0
+    println!("--------------------------------------------------");
+
+
+    // compound data types
+    // tuples
+    println!("Tuples: ");
+    let tup: (i32, f64, u8) = (500, 6.4, 1);
+    // destructuring a tuple
+    println!("Accession using Destruction: ");
+    let (a, b, c) = tup;
+    println!("The value of a is: {}", a);
+    println!("The value of b is: {}", b);
+    println!("The value of c is: {}", c);
+
+    println!("Accession using Index: ");
+    println!("The value of the first element is: {}", tup.0);
+    println!("The value of the second element is: {}", tup.1);
+    println!("The value of the third element is: {}", tup.2);
+    println!("--------------------------------------------------");
+
+
+    println!("Arrays: ");
+    let arr: [i32; 5] = [123, 22, 35, 41, 58]; // array of 5 integers
+    for i in 0..arr.len() {
+        println!("Index: {} Value: {}", i, arr[i]);
     }
+
+    println!("Filling an array with the same value: ");
+    let arr = [4; 5];
+    for i in 0..arr.len() {
+        println!("Index: {} Value: {}", i, arr[i]);
+    }
+    println!("--------------------------------------------------");
+
 }
+
