@@ -1,87 +1,85 @@
 
 fn main() {
 
-    // Variables 
-    let mut x: u32 =  5; //  mutable 32 bit integer variable
-    let y: u64 = 10; // immutable 64 bit integer variable
+    println!("Functions, Expressions, and Statements");
 
-    // NOTE(Tejas): difference between immutable and constant variables is that
-    // immutable variables are assigned a value at runtime (maybe through a
-    // function call) and can be changed, while constant variables are fixed at
-    // compile time and cannot be changed.
+    // NOTE(Tejas): we can evaluate an expression in a block and assign the result to a variable.
+    // NOTE(Tejas): underscore is used to indeicate that we know variable is unused.
+    let _y = {
+        let x = 3;
 
-    // const values must be know at compile time
-    const PI: f64 = 3.14159; // constant variable
+        // NOTE(Tejas): This is without a semicolon, so this will be returned,
+        // if we add a semicolon, it becomes a statement.
+        x + 1
+    };
 
-    // Data types
-    /*
-    Length                   Signed  Unsigned
-    ------------------------------------------
-    8-bit                    i8      u8
-    16-bit                   i16     u16
-    32-bit                   i32     u32
-    64-bit                   i64     u64
-    128-bit                  i128    u128
-    Architecture-dependent   isize   usize
-    */
+    println!("{}", another_function(32));
+    println!("------------------------------");
 
 
-    // NOTE(Tejas): Integer overflow will cause a panic in debug mode and if
-    // compiled with --release flag, it will wrap around using two's complement
-    // wrapping.
+    // Coditionals
+    println!("Conditionals");
+    let mut number = String::new();
 
-    println!("Integer Overflow and Wrapping: ");
+    println!("Enter a number: ");
+    std::io::stdin()
+    .read_line(&mut number)
+    .expect("Failed to read line");
 
-    // NOTE(Tejas): compile with --release flag.
-    let mut x: u8 = 255; // maximum value for u8
-    println!("Before overflow: {}", x);
+    let number: usize = number.trim().parse().expect("Please type a number!");
 
-    // NOTE(Tejas): will cause overflow and panic in debug mode, but will wrap
-    // around to 0 in release mode. Uncomment to see the effect in debug mode.
-    // x = x + 1;
-
-    println!("After overflow: {}", x); // will wrap around to 0
-
-
-    // NOTE(Tejas): We can additionally use the wrapping_add method to explicitly handle overflow.
-    // NOTE(Tejas): doesnt need --release flag, will always wrap around.
-    let mut x: u8 = 255;
-    println!("Before wrapping_add: {}", x);
-    x = x.wrapping_add(1); // will handle overflow by wrapping around
-    println!("After wrapping_add: {}", x); // will wrap around to 0
-    println!("--------------------------------------------------");
-
-
-    // compound data types
-    // tuples
-    println!("Tuples: ");
-    let tup: (i32, f64, u8) = (500, 6.4, 1);
-    // destructuring a tuple
-    println!("Accession using Destruction: ");
-    let (a, b, c) = tup;
-    println!("The value of a is: {}", a);
-    println!("The value of b is: {}", b);
-    println!("The value of c is: {}", c);
-
-    println!("Accession using Index: ");
-    println!("The value of the first element is: {}", tup.0);
-    println!("The value of the second element is: {}", tup.1);
-    println!("The value of the third element is: {}", tup.2);
-    println!("--------------------------------------------------");
-
-
-    println!("Arrays: ");
-    let arr: [i32; 5] = [123, 22, 35, 41, 58]; // array of 5 integers
-    for i in 0..arr.len() {
-        println!("Index: {} Value: {}", i, arr[i]);
+    // NOTE(Tejas): Rust does not allow one line if statements like in C
+    if number % 4 == 0 {
+        println!("number is divisible by 4");
+    } else if number % 3 == 0 {
+        println!("number is divisible by 3");
+    } else if number % 2 == 0 {
+        println!("number is divisible by 2");
+    } else {
+        println!("number is not divisible by 4, 3, or 2");
     }
 
-    println!("Filling an array with the same value: ");
-    let arr = [4; 5];
-    for i in 0..arr.len() {
-        println!("Index: {} Value: {}", i, arr[i]);
-    }
-    println!("--------------------------------------------------");
+    print!("Conditionals for expressions: ");
+    let val = if number > 10 { "greater than 10" } else { "less than or equal to 10" };
+    println!("Your number {} is {}", number, val);
 
+    // NOTE(Tejas): Rust does not automatically convert non-boolean types to
+    // boolean in conditionals, so we cannot do something like this:
+    let _number = 3;
+    // NOTE(Tejas): we cant do this...
+    // if number {
+    //     println!("This will not compile because number is not a boolean");
+    // }
+    println!("------------------------------");
+
+
+    println!("Loops: ");
+    let x = loop {
+        println!("Looping...");
+        break 42; // you can return a value from a loop using break
+    };
+
+    println!("Labeled loops: ");
+    'outer: loop {
+        println!("Outer loop");
+        'inner: loop {
+            println!("Inner loop");
+            break 'outer; // this will break the outer loop
+        }
+    }
+
+    println!("Reverse Range: ");
+    for number in (1..4).rev() {
+        println!("{}, ", number);
+    }
 }
 
+fn another_function(x: usize) -> usize {
+    println!("Another function. {}", x);
+
+    // NOTE(Tejas): The last expression is the return value of the function, and
+    // it does not need a semicolon.  if we add a semicolon, it becomes a
+    // statement and the function will return the unit type `()`, which is not
+    // what we want.
+    return x + 1;
+}
