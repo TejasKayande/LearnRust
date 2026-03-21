@@ -1,80 +1,63 @@
+// The Rules of References
+
+// Let’s recap what we’ve discussed about references:
+
+//     At any given time, you can have either one mutable reference or any
+//     number of immutable references.  
+//     References must always be valid. You cannot have dangling references.
 
 fn main() -> () {
 
+    let mut s1 = String::from("hello");
 
-    // Ownership is a set of rules that govern how a Rust program manages
-    // memory. All programs have to manage the way they use a computer’s memory
-    // while running. Rust uses a third approach: Memory is managed through a
-    // system of ownership with a set of rules that the compiler checks. If any
-    // of the rules are violated, the program won’t compile. None of the
-    // features of ownership will slow down your program while it’s running.
+    // This safe guard is only for mutable references.
+    // we can have multiple immutable references.
+    // and the compiler will only throw if we use mutable r1 after we create r2.
+    // If we never use r1 after we create r2, then the code is perfectly valid.
+    let _r1  = &mut s1;
+    let _r2  = &mut s1;
 
-    // Ownership rules:
-    // 1. Each value in Rust has an owner.
-    // 2. There can only be one owner at a time.
-    // 3. When the owner goes out of scope, the value will be dropped.
+    // This will break if we try to use r1 and r2
+    // println!("{} and {}", _r1, _r2);
 
-    {
-        // allocation memory on the heap at runtime
-        // here s owns the string "hello".
-        let mut s = String::from("hello");
+    let len = calculate_length(&s1);
 
-        // ownership of the string is moved to s2, s is no longer valid.
-        // This is a Shallow Copy
-        // let s2 = s;
+    println!("The length of '{}' is {}.", s1, len);
 
-        // ownership of the string is cloned to s2, s is still valid.
-        // This is a Deep Copy
-        let mut s2 = s.clone(); 
-        s2.push_str("world");
-        
-        // because s was assigned a new value, Rust called drop() on the old s
-        // and a new string was allocated on the heap for the new value.
-        // This happens in order: first it creates a new string on the heap,
-        // then it checks that the old s is no loger pointed by anything and
-        // therfore is out of scope, so Rust calls drop().
-        s = String::from("test");
-
-        println!("s: {}, s2: {}", s, s2);
-
-    } // s goes out of scope and memory is freed. Standard RAII pattern.
-
-    {
-        let s = String::from("hello");
-        // takes_ownership(s);
-        let s = take_and_give_ownership(s);
-
-        println!("s: {}", s);
-    }
-
-    {
-        let s = String::from("hello");
-        let (s, len) = calculate_length(s);
-
-        println!("The length of '{}' is {}.", s, len);
-    }
-
-    // All of the ownership rules only apply to values that are stored on the heap.
-    // Values that are stored on the stack have a known size at compile time and
-    // are stored directly on the stack. They can be copied by simply copying
-    // their bits, which is very fast.
-
+    change(&mut s1);
+    println!("The value of s1 is '{}'.", s1);
 }
 
-fn _takes_ownership(some_string: String) {
+// NOTE(Tejas): here because s is a reference to a String, the ownership is
+// still with the formal parameter s1. so we dont need to return the ownership
+// back.
+fn calculate_length(s: &String) -> usize {
 
-    println!("This string will now go out of scope: {}", some_string);
-} // some_string goes out of scope and memory is freed.
-
-fn take_and_give_ownership(some_string: String) -> String {
-
-    return some_string; // some_string is moved out to the caller.
+    return s.len();
 }
 
-fn calculate_length(s: String) -> (String, usize) {
+// NOTE(Tejas): here we are passing a mutable reference to the function change,
+// so that we can modify the value of the string that is being passed in. if we
+// had passed an immutable reference, we would not be able to modify the value
+// of the string.
+fn change(some_string: &mut String) {
 
-    let length = s.len();
+    // Mutable references have one big restriction: If you have a mutable
+    // reference to a value, you can have no other references to that value.
+    // This code that attempts to create two mutable references to s will fail:
 
-    // s is moved out to the caller before it goes out of scope.
-    return (s, length); // returning multiple values usign tuples.
+    some_string.push_str(", world");
+}
+
+
+fn dangling_reference() -> &String {
+
+    let s = String::from("Test");
+
+    // This will not work because rust ensures that the data will not be dropped
+    // before reference to that data.
+    return &s;
+
+    // Instead of this we should just return the ownership of the string with
+    // return s;
 }
