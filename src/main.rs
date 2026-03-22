@@ -1,63 +1,71 @@
-// The Rules of References
 
-// Let’s recap what we’ve discussed about references:
+fn first_word(s: &String) -> usize {
 
-//     At any given time, you can have either one mutable reference or any
-//     number of immutable references.  
-//     References must always be valid. You cannot have dangling references.
+    let bytes = s.as_bytes();
 
-fn main() -> () {
-
-    let mut s1 = String::from("hello");
-
-    // This safe guard is only for mutable references.
-    // we can have multiple immutable references.
-    // and the compiler will only throw if we use mutable r1 after we create r2.
-    // If we never use r1 after we create r2, then the code is perfectly valid.
-    let _r1  = &mut s1;
-    let _r2  = &mut s1;
-
-    // This will break if we try to use r1 and r2
-    // println!("{} and {}", _r1, _r2);
-
-    let len = calculate_length(&s1);
-
-    println!("The length of '{}' is {}.", s1, len);
-
-    change(&mut s1);
-    println!("The value of s1 is '{}'.", s1);
-}
-
-// NOTE(Tejas): here because s is a reference to a String, the ownership is
-// still with the formal parameter s1. so we dont need to return the ownership
-// back.
-fn calculate_length(s: &String) -> usize {
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' '{
+            return i;
+        }
+    }
 
     return s.len();
 }
 
-// NOTE(Tejas): here we are passing a mutable reference to the function change,
-// so that we can modify the value of the string that is being passed in. if we
-// had passed an immutable reference, we would not be able to modify the value
-// of the string.
-fn change(some_string: &mut String) {
+// returns the sliced string
+// &str is like a type for string slicking, it can also store string litrals.
+fn first_word_better(s: &String) -> &str {
 
-    // Mutable references have one big restriction: If you have a mutable
-    // reference to a value, you can have no other references to that value.
-    // This code that attempts to create two mutable references to s will fail:
+    let bytes = s.as_bytes();
 
-    some_string.push_str(", world");
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' '{
+            return &s[..i];
+        }
+    }
+
+    return &s;
 }
 
+fn main() {
 
-fn dangling_reference() -> &String {
+    // This is valid code but the problem here is that if s gets dropped, the
+    // 'word' integer would essentially be containing a meaningless value.
 
-    let s = String::from("Test");
+    let mut s = String::from("Hello World!");
+    let word = first_word(&s);
 
-    // This will not work because rust ensures that the data will not be dropped
-    // before reference to that data.
-    return &s;
+    println!("size of first word in {} is {}", s, word);
 
-    // Instead of this we should just return the ownership of the string with
-    // return s;
+    // instead of doing operations on strings like above, Rust provides string slicing
+    let first_w = &s[0..5];
+    let second_w = &s[6..11];
+
+    println!("First Word: {}     Second Word: {} ", first_w, second_w);
+
+
+    let first_word = first_word_better(&s);
+
+    // Here the best part about &str and is that it points to a slice in String
+    // s. It is an immutable reference, but s.clear() needs a mutable reference
+    // to s, but Rusts ownership rules state that we cannot have a mutable and
+    // an immutable reference to the same memory at the same time
+    // s.clear(); // so this will yell at compile time.
+
+    println!("Getting the first word using slicing: {}", first_word);
+
+    // Rust also allows slicing of other types, like integer arrays:
+    let a = [1, 2, 3, 4, 5];
+    let b = &a[1..4];
+    println!("Original: ");
+    for i in 0..a.len() {
+        print!("{} ", a[i]);
+    }
+    println!();
+
+    print!("Sliced: ");
+    for i in 0..b.len() {
+        print!("{} ", b[i]);
+    }
+    println!();
 }
