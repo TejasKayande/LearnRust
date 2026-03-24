@@ -1,71 +1,44 @@
 
-fn first_word(s: &String) -> usize {
-
-    let bytes = s.as_bytes();
-
-    for (i, &item) in bytes.iter().enumerate() {
-        if item == b' '{
-            return i;
-        }
-    }
-
-    return s.len();
+// We can store data of type reference in structs that refere to object outside
+// the struct but for that we need to specify the object lifetime for that..
+// Thats why we kept username and email as Strings for now instead of &str.
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
 }
 
-// returns the sliced string
-// &str is like a type for string slicking, it can also store string litrals.
-fn first_word_better(s: &String) -> &str {
+// Tuple Structure
+struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
 
-    let bytes = s.as_bytes();
 
-    for (i, &item) in bytes.iter().enumerate() {
-        if item == b' '{
-            return &s[..i];
-        }
-    }
-
-    return &s;
-}
+// A Struct with no fields
+// Unit-like structs can be useful when you need to implement a trait on some
+// type but don’t have any data that you want to store in the type itself
+struct UnitStruct;
 
 fn main() {
 
-    // This is valid code but the problem here is that if s gets dropped, the
-    // 'word' integer would essentially be containing a meaningless value.
+    let mut user1 = User {
+        active: true,
+        username: String::from("tejas"),
+        email: String::from("tejas@mail.com"),
+        sign_in_count: 1,
+    };
 
-    let mut s = String::from("Hello World!");
-    let word = first_word(&s);
+    let mut user2 = User {
+        email: String::from("another@mail.com"),
+        // This fillls the rest of the values. This should come at the very last
+        ..user1 
+    };
 
-    println!("size of first word in {} is {}", s, word);
+    user1.email = String::from("Hello World!");
 
-    // instead of doing operations on strings like above, Rust provides string slicing
-    let first_w = &s[0..5];
-    let second_w = &s[6..11];
+    let c= Color(18, 18, 18);
+    let p= Point(55, 100, 82);
 
-    println!("First Word: {}     Second Word: {} ", first_w, second_w);
-
-
-    let first_word = first_word_better(&s);
-
-    // Here the best part about &str and is that it points to a slice in String
-    // s. It is an immutable reference, but s.clear() needs a mutable reference
-    // to s, but Rusts ownership rules state that we cannot have a mutable and
-    // an immutable reference to the same memory at the same time
-    // s.clear(); // so this will yell at compile time.
-
-    println!("Getting the first word using slicing: {}", first_word);
-
-    // Rust also allows slicing of other types, like integer arrays:
-    let a = [1, 2, 3, 4, 5];
-    let b = &a[1..4];
-    println!("Original: ");
-    for i in 0..a.len() {
-        print!("{} ", a[i]);
-    }
-    println!();
-
-    print!("Sliced: ");
-    for i in 0..b.len() {
-        print!("{} ", b[i]);
-    }
-    println!();
+    // destructing a point. Just like a tuple.
+    let Point(p, q, r) = p;
 }
