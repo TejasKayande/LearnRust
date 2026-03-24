@@ -1,12 +1,25 @@
 
-#[derive(Debug)] // This will help us print this struct
 struct Dimentions {
     width: usize,
     height: usize,
 }
 
-fn get_area(dim: &Dimentions) -> usize {
-    dim.width * dim.height 
+impl Dimentions {
+    fn area(&self) -> usize {
+        self.width * self.height
+    }
+}
+
+
+// structs can have multiple impl blocks.
+impl Dimentions {
+
+    fn create(&self, w: usize, h: usize) -> Self {
+        Self {
+            width: w,
+            height: h,
+        }
+    }
 }
 
 fn main() -> () {
@@ -16,8 +29,10 @@ fn main() -> () {
         height: 25
     };
 
-    println!("Square {:?}" , square);
-    println!("Square {:#?}", square);
+    println!("Area of the square {} x {}: {}", square.width, square.height, square.area());
 
-    println!("Area of the square {} x {}: {}", square.width, square.height, get_area(&square));
+    let mut square2: Dimentions = Dimentions { width: 0, height: 0 };
+    square2 = square2.create(30, 30);
+
+    println!("Area of the square {} x {}: {}", square2.width, square2.height, square2.area());
 }
