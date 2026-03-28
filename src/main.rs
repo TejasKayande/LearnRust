@@ -1,72 +1,56 @@
-use std::f32::consts::E;
 
-enum Message {
-    Quit(u8), // u8 is the window id that needs to be quit.
-    Move,
-    Jump,
-    Sneak,
-    Sprint
+// imorting external modules
+use std::fs; // for file system operations
+use std::collections::*; // import all items from the collections module
+use std::io::{Write, Read}; // import specific items from the io module
+
+// modules
+mod math {
+
+    // we can have functions, structs, enums, and even other modules inside a
+    // module.
+
+    pub fn add(x: i32, y: i32) -> i32 {
+        x + y
+    }
+
+    pub fn subtract(x: i32, y: i32) -> i32 {
+        x - y
+    }
+    
+    pub fn multiply(x: i32, y: i32) -> i32 {
+        x * y
+    }
+    
+    pub fn divide(x: i32, y: i32) -> i32 {
+        x / y
+    }
+
+    pub mod advanced {
+        pub fn double(x: i32) -> i32 {
+            // refering the parent modult using 'super'
+            super::add(x, x)
+        }
+    }
 }
 
-fn handle_quit(msg: Message) -> String {
-
-    // we can use let else to match a single pattern and return early if it does not match.
-    // if the pattern matches, the value is assigned to the variable and we can
-    // use it in the rest of the function.
-
-    let Message::Quit(window_id) = msg else {
-        return String::from("The message was not Quit!");
-    };
-
-    // here because we did not return in the else block,
-    // we can use window_id in this scope.
-
-    format!("The window with ID {} was quit!", window_id)
-}
+// can alias a module or function to avoid name conflicts or for convenience.
+use math::subtract as sub; 
 
 fn main() -> () {
 
-    // Very safe way to have NULL values.
+    // absolute path. here 'create' refers to the root of the current crate.
+    let sum = crate::math::add(5, 3);    
+    println!("The sum is: {}", sum);
 
-    let opt: Option<usize> = Option::None;
-    // let opt: Option<usize> = Option::Some(5);
-    // let opt: Option<usize> = Option::Some(15);
+    // but because 'math' is a sibling of 'main', we can also use a relative path.
+    let difference = math::subtract(5, 3);
+    println!("The difference is: {}", difference);
 
-    let sum: String = match opt {
-        Option::None             => String::from("The Value is None"),
-        Option::Some(val) => format!("{}", val)
-    };
+    use math::advanced::double; // we can put this anywhere in the code. Even after where its used!
 
-    println!("{}", sum);
-
-    // match needs to have all the possible values coverd.
-    let number = 9;
-
-    let was_three = match number {
-
-        3 => true,
-        4 => false,
-        _other => false, // other is a value that number was, that did not match an cases.
-
-        // if we dont want to use the variable, we can use just an '_' to catch the default value.
-        _ => false
-    };
-
-    println!("{}", was_three);
-
-
-    // to match only a single pattern in we can use if let
-
-    if let Some(5) = opt {
-        println!("The number in Option<T> was 5");
-    } else if let None = opt {
-        println!("The number in Option<T> was None ");
-    } else {
-        println!("The number in Option<T> was not 5 or None");
-    }
-
-    let msg = Message::Quit(5);
-    let result = handle_quit(msg);
-    println!("{}", result);
+    // we bring 'double' in scope, so we can use it without the full path.
+    let double = double(difference);
+    println!("The double of {} is: {}", difference, double);
 
 }
