@@ -1,56 +1,72 @@
 
-// imorting external modules
-use std::fs; // for file system operations
-use std::collections::*; // import all items from the collections module
-use std::io::{Write, Read}; // import specific items from the io module
-
-// modules
-mod math {
-
-    // we can have functions, structs, enums, and even other modules inside a
-    // module.
-
-    pub fn add(x: i32, y: i32) -> i32 {
-        x + y
-    }
-
-    pub fn subtract(x: i32, y: i32) -> i32 {
-        x - y
-    }
-    
-    pub fn multiply(x: i32, y: i32) -> i32 {
-        x * y
-    }
-    
-    pub fn divide(x: i32, y: i32) -> i32 {
-        x / y
-    }
-
-    pub mod advanced {
-        pub fn double(x: i32) -> i32 {
-            // refering the parent modult using 'super'
-            super::add(x, x)
-        }
-    }
-}
-
-// can alias a module or function to avoid name conflicts or for convenience.
-use math::subtract as sub; 
-
 fn main() -> () {
 
-    // absolute path. here 'create' refers to the root of the current crate.
-    let sum = crate::math::add(5, 3);    
-    println!("The sum is: {}", sum);
+    let _v1: Vec<i32> = Vec::new();
 
-    // but because 'math' is a sibling of 'main', we can also use a relative path.
-    let difference = math::subtract(5, 3);
-    println!("The difference is: {}", difference);
+    // macro to create a vector with initial values
+    let mut v: Vec<i32> = vec![1, 2, 3];
+    println!("{:?}", v);
 
-    use math::advanced::double; // we can put this anywhere in the code. Even after where its used!
+    // adding values using push method
+    v.push(4);
+    v.push(5);
+    v.push(-5);
 
-    // we bring 'double' in scope, so we can use it without the full path.
-    let double = double(difference);
-    println!("The double of {} is: {}", difference, double);
+    println!("{:?}", v);
+
+    let val = &v[4]; // this will panic at runtime if index is out of bounds.
+    println!("val element is {}", val);
+
+    // to fix out of bounds error, we can return Option type using get method.
+    let index = 10;
+    let val = v.get(index); // this will return None if index is out of bounds.
+    match val {
+        Some(value) => println!("fifth element is {}", value),
+        None => println!("There is no {}th element.", index),
+    }
+
+    v[2] = 100; // this works
+    println!("{:?}", v);
+
+    let x: &mut i32 = &mut v[2]; // this also works, but we cannot use v[2] until we are done with x.
+
+    // v[2] = 200; // this will throw error because we have a mutable reference to v[2] in x.
+
+    *x = 1000; 
+
+    println!("{:?}", v);
+
+
+    // here we have are holding reference to v[2] in x, so we cannot add new element to v until we are done with x.
+    v.push(10); // this will throw error because we cannot borrow v as mutable
+
+    // once we try to do any operations on v, we are done with x, so we can use v again.
+    // compiler will throw erro if we try to use this reference after we are done with it.
+    // *x = 2000; 
+
+    println!("{:?}", v);
+
+
+    // iterating over vector
+    for i in &v {
+        println!("{}", i);
+    }
+
+    // vectors only hold one type of data, but we can use enum to get around this...
+    enum SpreadSheetCell {
+        Roll(i32),
+        Name(String),
+        Grade(String),
+    }
+
+    let _row = vec![
+        SpreadSheetCell::Roll(3),
+        SpreadSheetCell::Name(String::from("Alice")),
+        SpreadSheetCell::Grade(String::from("A+")),
+    ];
+
+    // when a vector is dropped, all of its elements are also dropped.
+    // The borrow checker ensures we dontt have any references to elements of a
+    // vector after the vector is dropped.
 
 }
